@@ -1,0 +1,22 @@
+.header__logo {
+    align-self: flex-start;
+    background-image: url(../../../images/logo.svg);
+    background-repeat: no-repeat;
+    width: 143px;
+    height: 34px;
+  }
+
+  @media screen and (min-width:320px) and (max-width: 1024px){
+    .header__logo {
+      width: 103.74px;
+      height: 24.4px;
+      background-size: contain;
+      
+    }
+  }
+
+  @media screen and (min-width: 1024px) {
+    .header__logo {
+      align-self: flex-start;
+    }
+  }

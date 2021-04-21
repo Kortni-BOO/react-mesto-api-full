@@ -1,0 +1,25 @@
+.popup__submit_inactive {
+    width: 358px;
+    height: 50.15px;
+    border: 1px solid #E5E5E5;
+    box-sizing: border-box;
+    border-radius: 2px;
+    color: #E5E5E5;
+    background-color: white;
+}
+@media screen and (min-width: 568px) and (max-width: 812px) {
+    .popup__submit_inactive {
+        margin-top: 2px;
+    } 
+}
+@media screen and (min-width: 320px) and (max-width: 414px) {
+    .popup__submit_inactive {
+      width: 238px;
+      font-size: 14px;
+      line-height: 17px;
+      font-style: normal;
+      font-weight: normal;
+      
+      
+    }
+}

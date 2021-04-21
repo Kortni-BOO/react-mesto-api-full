@@ -1,0 +1,10 @@
+.info__user {
+    height: 142px;
+    display: none;
+    flex-direction: column;
+    margin: auto;
+    border-bottom: 1px solid #545454;
+}
+.info__user_vid {
+    display: flex;
+}

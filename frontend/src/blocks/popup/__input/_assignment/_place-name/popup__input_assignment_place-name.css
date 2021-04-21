@@ -1,0 +1,7 @@
+@media screen and (min-width: 320px) and (max-width: 414px){
+    .popup__input_assignment_place-name {
+        width: 200px;
+        margin-top: 20px;
+        margin-bottom: 0;
+    }
+  }

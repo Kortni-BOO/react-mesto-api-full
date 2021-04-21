@@ -1,0 +1,20 @@
+.register__form_input {
+    background-color: black;
+    border: none;
+    border-bottom: 2px solid #CCCCCC;
+    margin-bottom: 30px;
+    color: #FFFFFF;
+    padding: 0 0 13px 0;
+    font-family: Inter;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 17px;
+}
+
+@media screen and (min-width:320px) and (max-width: 768px){
+    .register__form_input {
+        margin: auto auto 30px auto;;
+        width: 260px;
+    }
+}

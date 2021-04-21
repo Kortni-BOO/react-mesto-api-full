@@ -1,0 +1,15 @@
+.popup__input-error_author-name {
+    position: absolute;
+    top: 156px;
+    left: 34px;
+}
+
+@media screen and (min-width: 320px) and (max-width: 414px) {
+  
+    
+    .popup__input-error_author-name {
+        top: 142px;
+        left: 20px;
+
+    }
+}

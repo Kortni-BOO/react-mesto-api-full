@@ -1,0 +1,9 @@
+@media screen and (min-width: 320px) and (max-width: 414px){
+    .popup__close_profile-add {
+        width: 30px;
+        height: 30px;
+        top: -22px;
+        right: -23px;
+  
+    }
+  }

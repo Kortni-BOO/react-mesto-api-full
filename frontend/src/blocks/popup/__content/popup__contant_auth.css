@@ -1,0 +1,5 @@
+.popup__content_auth {
+    display: flex;
+    margin: auto;
+    flex-direction: column;
+}

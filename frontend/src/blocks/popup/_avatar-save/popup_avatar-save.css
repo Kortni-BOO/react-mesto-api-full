@@ -1,0 +1,21 @@
+.popup__avatar-save {
+    background: #000000;
+    border-radius: 2px;
+    width: 358px;
+    height: 50px;
+    font-family: Inter;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 18px;
+    line-height: 22px;
+    text-align: center;
+    margin: 48px auto 36px auto;
+    color: #FFFFFF;
+    border: none;
+    cursor: pointer;
+}
+
+.popup__avatar-save:hover {
+    opacity: .8;
+    transition: .5s linear;
+  }

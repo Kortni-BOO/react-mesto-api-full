@@ -1,0 +1,23 @@
+.header__button {
+    display: none;
+}
+@media screen and (min-width:320px) and (max-width: 768px){
+    .header__button {
+        width: 24px;
+        display: block;
+        box-shadow: none;
+        cursor: pointer;
+        background-color: #000000;
+        border-bottom: 10px double #FFFFFF;
+        border-top: 3px solid #FFFFFF;
+        border-left: none;
+        border-right: none;
+        content: '';
+        height: 17px;
+        /*background-image: url(../../../images/Line\ 42.svg);
+        background-size: 25px 24px;
+        background-position: center;*/  
+    }
+
+
+}

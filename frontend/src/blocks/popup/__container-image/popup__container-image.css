@@ -1,0 +1,8 @@
+@media screen and (min-width: 320px) and (max-width: 414px){
+    .popup__container-image {
+      max-width: 75vw;
+      max-height: 75vh;
+      border-radius: 10px;
+  
+    }
+  }
