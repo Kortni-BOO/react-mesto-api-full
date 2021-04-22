@@ -6,27 +6,21 @@ const handleOriginalResponse = (res) => {
 };
 
 class Api {
-    constructor({ address, token, groupId }) {
-        this._address = address;
-        this._token = token;
-        this._groupId = groupId;
+    constructor( config ) {
+        this.address = config.address;
+        this.headers = config.headers;
     }
 
     getUserInformation() {
-        return fetch(`${this._address}/v1/${this._groupId}/users/me`, {
-            headers: {
-                authorization: this._token,
-            },
+        return fetch(`${this.address}/users/me`, {
+            headers: this.headers,
         }).then(handleOriginalResponse);
     }
 
     editUserInformation(data) {
-        return fetch(`${this._address}/v1/${this._groupId}/users/me`, {
+        return fetch(`${this.address}/users/me`, {
             method: "PATCH",
-            headers: {
-                authorization: this._token,
-                "Content-Type": "application/json",
-            },
+            headers: this.headers,
             body: JSON.stringify({
                 name: data.name,
                 about: data.about,
@@ -36,19 +30,14 @@ class Api {
     }
 
     getInitialCards() {
-        return fetch(`${this._address}/v1/${this._groupId}/cards`, {
-            headers: {
-                authorization: this._token,
-            },
+        return fetch(`${this.address}/cards`, {
+            headers: this.headers,
         }).then(handleOriginalResponse);
     }
     addCard(data) {
-        return fetch(`${this._address}/v1/${this._groupId}/cards`, {
+        return fetch(`${this._address}/cards`, {
             method: "POST",
-            headers: {
-                authorization: this._token,
-                "Content-Type": "application/json",
-            },
+            headers: this.headers,
             body: JSON.stringify({
                 name: data.name,
                 link: data.link,
@@ -56,22 +45,16 @@ class Api {
         }).then(handleOriginalResponse);
     }
     removeCard(id) {
-        return fetch(`${this._address}/v1/${this._groupId}/cards/${id}`, {
+        return fetch(`${this.address}/cards/${id}`, {
             method: "DELETE",
-            headers: {
-                authorization: this._token,
-                "Content-Type": "application/json",
-            },
+            headers: this.headers,
         }).then(handleOriginalResponse);
     }
 
     editAvatarUser(data) {
-        return fetch(`${this._address}/v1/${this._groupId}/users/me/avatar`, {
+        return fetch(`${this.address}/users/me/avatar`, {
             method: "PATCH",
-            headers: {
-                authorization: this._token,
-                "Content-Type": "application/json",
-            },
+            headers: this.headers,
             body: JSON.stringify({
                 avatar: data.avatar,
             }),
@@ -91,20 +74,14 @@ class Api {
 */
     changeLikeCardStatus(id, isLiked) {
         if(isLiked){
-            return fetch(`${this._address}/v1/${this._groupId}/cards/likes/${id}`, {
+            return fetch(`${this.address}/cards/${id}/likes`, {
                 method: "PUT",
-                headers: {
-                    authorization: this._token,
-                    "Content-Type": "application/json",
-                },
+                headers: this.headers,
             }).then(handleOriginalResponse);
         } else {
-            return fetch(`${this._address}/v1/${this._groupId}/cards/likes/${id}`, {
+            return fetch(`${this._address}/cards/${id}/likes`, {
                 method: "DELETE",
-                headers: {
-                    authorization: this._token,
-                    "Content-Type": "application/json",
-                },
+                headers: this.headers,
             }).then(handleOriginalResponse);
         }
 
@@ -112,8 +89,10 @@ class Api {
 }
 
 const api = new Api({
-    address: "https://mesto.nomoreparties.co",
-    token: "39d70764-e5af-4ea0-b4da-e670479603af",
-    groupId: "cohort-19",
+    address: "https://api.kisboo.mesto.nomoredomains.monster",
+    headers: {
+        authorization: `Bearer ${localStorage.getItem("token")}`,
+       "Content-Type": "application/json",
+    },
 });
 export default api;

@@ -1,4 +1,5 @@
-export const BASE_URL = 'https://auth.nomoreparties.co';
+
+export const BASE_URL = 'https://api.kisboo.mesto.nomoredomains.monster';
 const responseCheck = (response) => response.ok ? response.json() : Promise.reject(`Ошибка ${response.status}`);
 
 export const register = (email, password) => {
@@ -47,3 +48,4 @@ export const getContent = (token) => {
     })
     .then(responseCheck)
 }
+
