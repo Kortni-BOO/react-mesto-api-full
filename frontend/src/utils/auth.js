@@ -1,6 +1,13 @@
 
-export const BASE_URL = 'https://api.kisboo.mesto.nomoredomains.monster';
-const responseCheck = (response) => response.ok ? response.json() : Promise.reject(`Ошибка ${response.status}`);
+export const BASE_URL = 'http://api.kisboo.mesto.nomoredomains.monster';
+
+
+const responseCheck = (res) => {
+    if (!res.ok) {
+        return Promise.reject(`Error: ${res.status}`);
+    }
+    return res.json();
+};
 
 export const register = (email, password) => {
     return fetch(`${BASE_URL}/signup`, {
@@ -8,44 +15,27 @@ export const register = (email, password) => {
         headers: {
             'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify({
             email,
-            password
+            password,
         })
     })
-    //.then((res) => console.log(res))
     .then(responseCheck)
-    //.then((res) => {return res})
-
 };
 
 export const authorize = (email, password) => {
     return fetch(`${BASE_URL}/signin`, {
         method: 'POST',
+      
         headers: {
             'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify({
             email,
-            password
+            password,
         })
     })
     .then(responseCheck)
-    /*
-    .then((res) => {
-        return res
-        })
-    */
 };
-
-export const getContent = (token) => {
-    return fetch(`${BASE_URL}/users/me`, {
-        method: 'GET',
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization" : `Bearer ${token}`
-        }
-    })
-    .then(responseCheck)
-}
-
