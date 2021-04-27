@@ -41,7 +41,7 @@ export const authorize = (email, password) => {
     });
 };
 
-export const checkToken = (jwt) => {
+export const getContent = (jwt) => {
     return fetch(`${BASE_URL}/users/me`, {
         method: 'GET',
         headers: {

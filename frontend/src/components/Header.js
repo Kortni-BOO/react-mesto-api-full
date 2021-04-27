@@ -7,17 +7,17 @@ function Header(props) {
         <header className="header">
             <div className="header__logo"></div>
             <Switch>
-                <Route path="/signup">
-                    <Link className="header__link" to="/signin">Войти</Link>
+                <Route path="/sign-up">
+                    <Link className="header__link" to="/sign-in">Войти</Link>
                 </Route>
-                <Route path="/signin">
-                    <Link className="header__link" to="/signup">Регистрация</Link>
+                <Route path="/sign-in">
+                    <Link className="header__link" to="/sign-up">Регистрация</Link>
                 </Route>
                 <Route exact path="/">
                     <button onClick={props.onHeaderOpen} className={`${props.isPopupOpen ? 'header__button' : 'header__button_close'} `}></button>
                     <div className="header__content">
                         <p className="header__text">{props.onEmail}</p>
-                        <Link className="header__link" to="/signin" onClick={props.onSignOut}>Выйти</Link>
+                        <Link className="header__link" to="/sign-in" onClick={props.onSignOut}>Выйти</Link>
                     </div>
                 </Route>
             </Switch>

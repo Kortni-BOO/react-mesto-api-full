@@ -1,7 +1,7 @@
 import React from 'react';
+import { Link, useHistory } from 'react-router-dom';
 
-
-function Login(props) {
+export default function Login(props) {
     const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
 
@@ -16,8 +16,6 @@ function Login(props) {
         e.preventDefault();
         //console.log('[')
         // Передаём значения управляемых компонентов во внешний обработчик
-        
-        console.log("WHAT")
         props.onLogin(email, password);
     }
     return (
@@ -51,5 +49,3 @@ function Login(props) {
         </div>
     )
 }
-
-export default Login;

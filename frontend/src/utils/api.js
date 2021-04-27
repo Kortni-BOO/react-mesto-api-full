@@ -24,8 +24,8 @@ class Api {
         return fetch(`${this._address}/users/me`, {
             method: "GET",
             headers: {
-                Authorization: `Bearer ${jwt}`,
                 "Content-Type": "application/json",
+                Authorization: `Bearer ${jwt}`,
             },
         })
         .then((res) => this.handleOriginalResponse(res))
@@ -49,8 +49,8 @@ class Api {
         return fetch(`${this._address}/cards`, {
             method: "GET",
             headers: {
-                    Authorization: `Bearer ${jwt}`,
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${jwt}`
             },
         })
         .then((res) => this.handleOriginalResponse(res))

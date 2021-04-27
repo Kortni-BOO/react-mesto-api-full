@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Route, Redirect, Switch, useHistory, Link } from "react-router-dom";
 import Header from "./Header.js";
@@ -17,7 +16,7 @@ import * as auth from "../utils/auth.js";
 import ProtectedRoute from "./ProtectedRoute";
 import InfoTooltip from "./InfoTooltip";
 import HeaderPopup from "./HeaderPopupOpen";
-import { setToken, getToken } from '../utils/utils';
+import { getToken } from '../utils/utils';
 
 
 function App() {
@@ -36,60 +35,36 @@ function App() {
   const [isEmail, setEmail] = React.useState('');
   const [isInfoTooltipOpen, setIsInfoTooltip] = React.useState(false);
   const [isAuth, setIsAuth] = React.useState(false);
-
-  const [token, setToken] = React.useState('');
-
   const history = useHistory();
-  
-React.useEffect(() => {
-  const jwt = getToken();
-  if(!loggedIn) {
-    return;
-  }
-  Promise.all([api.getUserInformation(jwt),api.getInitialCards(jwt)])
+
+
+
+  React.useEffect(() => {
+    const jwt = getToken();
+    Promise.all([api.getUserInformation(jwt),api.getInitialCards(jwt)])
       .then(([user, card]) => {
-        console.log(user, card)
         setCurrentUser(user);
-        setCards(card)
+        setCards(card);
+        console.log(loggedIn);
       })
       .catch((err) => console.log(err));
-}, [loggedIn]);
+  },[history]);
 
-React.useEffect(() => {
-  tokenCheck();
-}, []);
-
+  React.useEffect(() => {
+    tokenCheck();
+  }, []);
 
 
   function registerAuth(state) {
     setIsInfoTooltip(true);
     setIsAuth(state)
   }
-
-  function handleLogin(email, password) {
-    return auth.authorize(email, password)
-      .then((res) => {
-        history.push('/');
-        localStorage.setItem('jwt', res.token);
-        setLoggedIn(true);
-        console.log(res.token);
-        //tokenCheck();
-      })
-      .catch((err) => {
-        if(err === 400) {
-          console.log("Не передано одно из полей");
-        }
-        if(err === 401) {
-          console.log("Пользователь с email не найден");
-        }
-      })
-  }
-    //Добавить нового пользователя 
-  const handleRegister = (email, password) => {
+    /*Добавить нового пользователя */
+  function handleRegister(email, password){
       return auth.register(email, password)
         .then(() => {
           registerAuth(true);
-          history.push('/signin')
+          history.push('/sign-in')
         })
         .catch((err) => {
           registerAuth(false);
@@ -98,17 +73,15 @@ React.useEffect(() => {
           }
         })
   }
-  //Проверка токена 
-  function tokenCheck(){
+  /*Проверка токена */
+  function tokenCheck() {
     const jwt = localStorage.getItem('jwt');
     if(jwt) {
-      auth.checkToken(jwt).then(res => {
-        //console.log(jwt)
+      auth.getContent(jwt).then(res => {
         if (res) {
           setEmail(res.data.email);
-          console.log(res.data)
+          //console.log(res.data.email)
           setLoggedIn(true);
-          //
           history.push('/');
         }
       })
@@ -120,15 +93,31 @@ React.useEffect(() => {
     }
   }
 
-    // Вход 
-  
-  // Выход  
-  /*
+    /* Вход */
+  function handleLogin(email, password) {
+    return auth.authorize(email, password)
+      .then((res) => {
+        //console.log(email);
+        //setEmail(email);
+        setLoggedIn(true)
+        localStorage.setItem('jwt', res.token);
+        tokenCheck();
+        console.log(loggedIn);
+      })
+      .catch((err) => {
+        if(err === 400) {
+          console.log("Не передано одно из полей");
+        }
+        if(err === 401) {
+          console.log("Пользователь с email не найден");
+        }
+      })
+  }
+  /* Выход  */
   function onSignOut() {
     localStorage.removeItem('jwt');
     setLoggedIn(false);
   }
-*/
   //console.log(currentUser);
   function handleUpdateUser(user) {
       api.editUserInformation(user)
@@ -167,7 +156,7 @@ React.useEffect(() => {
       .catch((err) => console.log(`Ошибка при добавлении карточки ${err}`))
       .finally(() => closeAllPopups());
   }
-  // Открытие попапов 
+  /* Открытие попапов */
   function handleEditAvatarClick() {
     setIsEditAvatarPopupOpen(true);
   }
@@ -181,7 +170,7 @@ React.useEffect(() => {
   function handleHeaderPopupOpen() {
     setIsHeaderPopup(true);
   }
-  // Закрытие попапов 
+  /* Закрытие попапов */
   function closeAllPopups() {
     setIsEditAvatarPopupOpen(false);
     setIsEditProfilePopupOpen(false);
@@ -194,15 +183,14 @@ React.useEffect(() => {
     setSelectedCard(card);
     setIsImagePopupOpen(true);
   }
-
-
   return (
     <div className="page">
       <HeaderPopup isOpen={isHeaderPopup} isEmail={isEmail} onClose={closeAllPopups}/>
       <CurrentUserContext.Provider value={currentUser}>
-        <Header onEmail={isEmail} /*onSignOut={onSignOut}*/ onHeaderOpen={handleHeaderPopupOpen}/>
+        <Header onEmail={isEmail} onSignOut={onSignOut} onHeaderOpen={handleHeaderPopupOpen}/>
         <Switch>
           <ProtectedRoute
+            value={currentUser}
             exact
             path="/"
             loggedIn={loggedIn}
@@ -215,11 +203,14 @@ React.useEffect(() => {
             onCardLike={handleCardLike}
             onDeleteClick={handleCardDelete}
           />
-          <Route path="/signup">
+          <Route path="/sign-up">
             <Register onRegister={handleRegister}/>
           </Route>
-          <Route path="/signin">
+          <Route path="/sign-in">
             <Login onLogin={handleLogin}/>
+          </Route>
+          <Route>
+            {loggedIn ? <Redirect to="/"/> : <Redirect to="/sign-in"/>}
           </Route>
         </Switch>
 
@@ -251,40 +242,3 @@ React.useEffect(() => {
 }
 
 export default App;
-
-
-
-/*
-function handleLogin(email, password) {
-    return auth.authorize(email, password)
-      .then((res) => {
-        history.push('/');
-        localStorage.setItem('jwt', res.token);
-        setLoggedIn(true);
-        console.log(res.token);
-        //tokenCheck();
-      })
-      .catch((err) => {
-        if(err === 400) {
-          console.log("Не передано одно из полей");
-        }
-        if(err === 401) {
-          console.log("Пользователь с email не найден");
-        }
-      })
-  }
-
-React.useEffect(() => {
-    //const jwt = getToken();
-    if(!loggedIn) {
-      return;
-    }
-    Promise.all([api.getUserInformation(),api.getInitialCards()])
-        .then(([user, card]) => {
-          console.log(user, card)
-          setCurrentUser(user);
-          setCards(card)
-        })
-        .catch((err) => console.log(err));
-  }, [loggedIn]);
-*/
