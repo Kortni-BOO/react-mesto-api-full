@@ -41,11 +41,10 @@ function Main(props) {
         <ul className="elements__list">
           {props.cards.map((item) => (
             <Card 
-              key={item._id} 
+              key={item._id} {...item}
               onCardClick={props.onCardClick}
               onCardLike={props.onCardLike}
               onDeleteClick={props.onDeleteClick}
-              card={item}
             />
           ))}
         </ul>
@@ -55,4 +54,5 @@ function Main(props) {
 }
 
 export default Main;
+
 //{...item}

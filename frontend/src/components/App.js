@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Route, Redirect, Switch, useHistory, Link } from "react-router-dom";
 import Header from "./Header.js";
@@ -16,6 +17,7 @@ import * as auth from "../utils/auth.js";
 import ProtectedRoute from "./ProtectedRoute";
 import InfoTooltip from "./InfoTooltip";
 import HeaderPopup from "./HeaderPopupOpen";
+import { setToken, getToken } from '../utils/utils';
 
 
 function App() {
@@ -33,45 +35,45 @@ function App() {
   const [loggedIn, setLoggedIn] = React.useState(false);
   const [isEmail, setEmail] = React.useState('');
   const [isInfoTooltipOpen, setIsInfoTooltip] = React.useState(false);
-  //const [isAuth, setIsAuth] = React.useState(false);
+  const [isAuth, setIsAuth] = React.useState(false);
+
+  const [token, setToken] = React.useState('');
+
   const history = useHistory();
-
-
-
- function getInfo() {
-    Promise.all([api.getUserInformation(),api.getInitialCards()])
+  
+React.useEffect(() => {
+  const jwt = getToken();
+  if(!loggedIn) {
+    return;
+  }
+  Promise.all([api.getUserInformation(jwt),api.getInitialCards(jwt)])
       .then(([user, card]) => {
+        console.log(user, card)
         setCurrentUser(user);
         setCards(card)
       })
       .catch((err) => console.log(err));
-  };
+}, [loggedIn]);
+
+React.useEffect(() => {
+  tokenCheck();
+}, []);
 
 
-    /*Добавить нового пользователя */
-  function handleRegister(email, password){
-      return auth.register(email, password)
-        .then(() => {
-          setIsInfoTooltip(true);
-          history.push('/signin');
-        })
-        .catch((err) => {
-          setIsInfoTooltip(false);
-          if(err === 400) {
-            console.log("Некорректно заполнено одно из полей");
-          }
-        })
+
+  function registerAuth(state) {
+    setIsInfoTooltip(true);
+    setIsAuth(state)
   }
 
-    /* Вход */
   function handleLogin(email, password) {
     return auth.authorize(email, password)
       .then((res) => {
-        console.log(res)
-        //tokenCheck()
-        //setLoggedIn(true);
         history.push('/');
-        getInfo();
+        localStorage.setItem('jwt', res.token);
+        setLoggedIn(true);
+        console.log(res.token);
+        //tokenCheck();
       })
       .catch((err) => {
         if(err === 400) {
@@ -82,13 +84,51 @@ function App() {
         }
       })
   }
+    //Добавить нового пользователя 
+  const handleRegister = (email, password) => {
+      return auth.register(email, password)
+        .then(() => {
+          registerAuth(true);
+          history.push('/signin')
+        })
+        .catch((err) => {
+          registerAuth(false);
+          if(err === 400) {
+            console.log("Некорректно заполнено одно из полей");
+          }
+        })
+  }
+  //Проверка токена 
+  function tokenCheck(){
+    const jwt = localStorage.getItem('jwt');
+    if(jwt) {
+      auth.checkToken(jwt).then(res => {
+        //console.log(jwt)
+        if (res) {
+          setEmail(res.data.email);
+          console.log(res.data)
+          setLoggedIn(true);
+          //
+          history.push('/');
+        }
+      })
+      .catch((err) => {
+        if(err === 401) {
+          console.log("Токен не передан или передан не в том формате");
+        }
+      })
+    }
+  }
 
-
-  /* Выход  */
+    // Вход 
+  
+  // Выход  
+  /*
   function onSignOut() {
     localStorage.removeItem('jwt');
     setLoggedIn(false);
   }
+*/
   //console.log(currentUser);
   function handleUpdateUser(user) {
       api.editUserInformation(user)
@@ -127,7 +167,7 @@ function App() {
       .catch((err) => console.log(`Ошибка при добавлении карточки ${err}`))
       .finally(() => closeAllPopups());
   }
-  /* Открытие попапов */
+  // Открытие попапов 
   function handleEditAvatarClick() {
     setIsEditAvatarPopupOpen(true);
   }
@@ -141,7 +181,7 @@ function App() {
   function handleHeaderPopupOpen() {
     setIsHeaderPopup(true);
   }
-  /* Закрытие попапов */
+  // Закрытие попапов 
   function closeAllPopups() {
     setIsEditAvatarPopupOpen(false);
     setIsEditProfilePopupOpen(false);
@@ -154,14 +194,18 @@ function App() {
     setSelectedCard(card);
     setIsImagePopupOpen(true);
   }
+
+
   return (
     <div className="page">
       <HeaderPopup isOpen={isHeaderPopup} isEmail={isEmail} onClose={closeAllPopups}/>
       <CurrentUserContext.Provider value={currentUser}>
-        <Header onEmail={isEmail} onSignOut={onSignOut} onHeaderOpen={handleHeaderPopupOpen}/>
+        <Header onEmail={isEmail} /*onSignOut={onSignOut}*/ onHeaderOpen={handleHeaderPopupOpen}/>
         <Switch>
           <ProtectedRoute
-            exact path="/"
+            exact
+            path="/"
+            loggedIn={loggedIn}
             component={Main}
             onEditProfile={handleEditProfileClick}
             onEditAvatar={handleEditAvatarClick}
@@ -170,7 +214,6 @@ function App() {
             cards={cards}
             onCardLike={handleCardLike}
             onDeleteClick={handleCardDelete}
-            loggedIn={loggedIn}
           />
           <Route path="/signup">
             <Register onRegister={handleRegister}/>
@@ -184,7 +227,7 @@ function App() {
         <InfoTooltip
           isOpen={isInfoTooltipOpen}
           onClose={closeAllPopups}
-          /*isAuth={isAuth}*/
+          isAuth={isAuth}
         />
         <ImagePopup
           link={selectedCard.link}
@@ -209,34 +252,39 @@ function App() {
 
 export default App;
 
-/**
- *         <Main
-          onEditAvatar={handleEditAvatarClick}
-          onEditProfile={handleEditProfileClick}
-          onAddPlace={handleAddPlaceClick}
-          onCardClick={handleCardClick}
-          cards={cards}
-          onCardLike={handleCardLike}
-          onDeleteClick={handleCardDelete} 
-        />
 
-          /*Проверка токена 
-  function tokenCheck() {
-    const jwt = localStorage.getItem('jwt');
-    if(token) {
-      auth.getContent(jwt).then(res => {
-        if (res) {
-          setEmail(res.data.email);
-          //console.log(res.data.email)
-          setLoggedIn(true);
-          history.push('/');
-        }
+
+/*
+function handleLogin(email, password) {
+    return auth.authorize(email, password)
+      .then((res) => {
+        history.push('/');
+        localStorage.setItem('jwt', res.token);
+        setLoggedIn(true);
+        console.log(res.token);
+        //tokenCheck();
       })
       .catch((err) => {
+        if(err === 400) {
+          console.log("Не передано одно из полей");
+        }
         if(err === 401) {
-          console.log("Токен не передан или передан не в том формате");
+          console.log("Пользователь с email не найден");
         }
       })
-    }
   }
- */
+
+React.useEffect(() => {
+    //const jwt = getToken();
+    if(!loggedIn) {
+      return;
+    }
+    Promise.all([api.getUserInformation(),api.getInitialCards()])
+        .then(([user, card]) => {
+          console.log(user, card)
+          setCurrentUser(user);
+          setCards(card)
+        })
+        .catch((err) => console.log(err));
+  }, [loggedIn]);
+*/

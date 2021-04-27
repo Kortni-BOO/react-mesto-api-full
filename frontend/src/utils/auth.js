@@ -1,24 +1,20 @@
 
-export const BASE_URL = 'http://api.kisboo.mesto.nomoredomains.monster';
+import { setToken } from './utils';
+//export const BASE_URL = 'https://api.kisboo.mesto.nomoredomains.monster';
+export const BASE_URL = 'http://localhost:3000';
 
-
-const responseCheck = (res) => {
-    if (!res.ok) {
-        return Promise.reject(`Error: ${res.status}`);
-    }
-    return res.json();
-};
+const responseCheck = (response) => response.ok ? response.json() : Promise.reject(`Ошибка ${response.status}`);
 
 export const register = (email, password) => {
     return fetch(`${BASE_URL}/signup`, {
         method: 'POST',
         headers: {
+            'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
-        credentials: 'include',
         body: JSON.stringify({
             email,
-            password,
+            password
         })
     })
     .then(responseCheck)
@@ -27,15 +23,32 @@ export const register = (email, password) => {
 export const authorize = (email, password) => {
     return fetch(`${BASE_URL}/signin`, {
         method: 'POST',
-      
         headers: {
+            'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
-        credentials: 'include',
         body: JSON.stringify({
             email,
-            password,
+            password
         })
     })
     .then(responseCheck)
+    .then((data) => {
+        if (data) {
+          setToken(data);
+          return data;
+        }
+    });
 };
+
+export const checkToken = (jwt) => {
+    return fetch(`${BASE_URL}/users/me`, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            "Content-Type": "application/json",
+            "Authorization" : `Bearer ${localStorage.getItem('jwt')}`
+        }
+    })
+    .then(responseCheck)
+}
