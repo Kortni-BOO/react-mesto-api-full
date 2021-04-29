@@ -52,7 +52,12 @@ const createUser = (req, res, next) => {
     .then((hash) => User.create({
       name, about, avatar, email, password: hash,
     }))
-    .then((data) => res.status(201).send({ data }))
+    .then((user) => res.status(201).send({
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+      email: user.email,
+    }))
     .catch((err) => {
       if (err.name === 'MongoError' || err.code === 11000) {
         throw new ConflictingRequestError('Такой email уже зарегестрирован');
@@ -118,7 +123,7 @@ const loginUser = (req, res, next) => {
         { expiresIn: '7d' },
       );
       res
-        .send({ token, user });
+        .send({ token });
     })
     .catch(() => {
       throw new AuthError('Необходима авторизация');
