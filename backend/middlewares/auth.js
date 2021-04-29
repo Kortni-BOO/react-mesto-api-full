@@ -3,7 +3,6 @@ const AuthError = require('../utils/auth-err');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
-// middlewares/auth.js
 
 const auth = (req, res, next) => {
   const { authorization } = req.headers;
@@ -29,3 +28,5 @@ const auth = (req, res, next) => {
 
   next(); // пропускаем запрос дальше
 };
+
+module.exports = auth;

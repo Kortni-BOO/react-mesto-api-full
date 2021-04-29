@@ -135,15 +135,20 @@ function App() {
       .catch((err) => console.log(`Ошибка при обновлении аватара${err}`))
       .finally(() => closeAllPopups());
   }
+
   function handleCardLike(card) {
     const jwt = getToken();
     const isLiked = card.likes.some(i => i === currentUser._id);
-    api.changeLikeCardStatus(card._id, !isLiked, jwt).then((newCard) => {
-      const newCards = cards.map((c) => (c._id === card._id ? newCard : c));
-      setCards(newCards);
-    })
-    .catch((err) => console.log(`Ошибка при постановки лайка ${err}`))
+    console.log(card)
+    api.changeLikeCardStatus(card._id, !isLiked, jwt)
+      .then((newCard) => {
+        const newCards = cards.map((c) => (c._id === card._id ? newCard : c));
+        console.log(newCard)
+        setCards(newCards);
+      })
+      .catch((err) => console.log(`Ошибка при постановки лайка ${err}`))
   }
+
   function handleCardDelete(card) {
     const jwt = getToken();
     api.removeCard(card._id, jwt)
