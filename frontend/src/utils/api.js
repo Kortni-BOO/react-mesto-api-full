@@ -1,16 +1,7 @@
-/*
-const handleOriginalResponse = (res) => {
-    if (!res.ok) {
-        return Promise.reject(`Error: ${res.status}`);
-    }
-    return res.json();
-};
-*/
 
 class Api {
     constructor(options) {
         this._address = options.address;
-        this._headers = options.headers;
     }
 
     handleOriginalResponse(res) { 
@@ -25,23 +16,27 @@ class Api {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${jwt}`,
+                'Accept': 'application/json',
+                authorization: `Bearer ${jwt}`,
             },
         })
         .then((res) => this.handleOriginalResponse(res))
     }
 
-    editUserInformation(data) {
+    editUserInformation(data, jwt) {
         return fetch(`${this._address}/users/me`, {
             method: "PATCH",
-            headers: this._headers,
+            headers: {
+                "Content-Type": "application/json",
+                'Accept': 'application/json',
+                authorization: `Bearer ${jwt}`
+        },
             body: JSON.stringify({
-                name: data.name,
-                about: data.about,
-                avatar: data.avatar,
+                name:data.name,
+                about:data.about,
             }),
         })
-        //.then(handleOriginalResponse);
+        .then((res) => this.handleOriginalResponse(res))
     }
 
 
@@ -50,64 +45,76 @@ class Api {
             method: "GET",
             headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${jwt}`
+                    'Accept': 'application/json',
+                    authorization: `Bearer ${jwt}`
             },
         })
         .then((res) => this.handleOriginalResponse(res))
     }
 
-    addCard(data) {
+    addCard(data, jwt) {
         return fetch(`${this._address}/cards`, {
             method: "POST",
-            headers: this._headers,
+            headers: {
+                "Content-Type": "application/json",
+                'Accept': 'application/json',
+                authorization: `Bearer ${jwt}`
+            },
             body: JSON.stringify({
                 name: data.name,
                 link: data.link,
             }),
         })
-        //.then(handleOriginalResponse);
+        .then((res) => this.handleOriginalResponse(res))
     }
-    removeCard(id) {
+    removeCard(id, jwt) {
         return fetch(`${this._address}/cards/${id}`, {
             method: "DELETE",
             headers: {
-                Authorization: this._token,
                 "Content-Type": "application/json",
+                'Accept': 'application/json',
+                authorization: `Bearer ${jwt}`
             },
         })
-        //.then(handleOriginalResponse);
+        .then((res) => this.handleOriginalResponse(res))
     }
 
-    editAvatarUser(data) {
+    editAvatarUser(data, jwt) {
         return fetch(`${this._address}/users/me/avatar`, {
             method: "PATCH",
-            headers: this._headers,
+            headers: {
+                "Content-Type": "application/json",
+                'Accept': 'application/json',
+                authorization: `Bearer ${jwt}`
+            },
             body: JSON.stringify({
                 avatar: data.avatar,
             }),
         })
-        //.then(handleOriginalResponse);
+        .then((res) => this.handleOriginalResponse(res))
     }
 
-    changeLikeCardStatus(id, isLiked) {
+    changeLikeCardStatus(id, isLiked, jwt) {
         if(isLiked){
             return fetch(`${this._address}/cards/${id}/likes`, {
                 method: "PUT",
                 headers: {
-                    authorization: this._token,
                     "Content-Type": "application/json",
+                    'Accept': 'application/json',
+                    authorization: `Bearer ${jwt}`
                 },
             })
-            //.then(handleOriginalResponse);
+            .then((res) => this.handleOriginalResponse(res))
         } else {
             return fetch(`${this._address}/cards/${id}/likes`, {
                 method: "DELETE",
                 headers: {
-                    authorization: this._token,
                     "Content-Type": "application/json",
+                    'Accept': 'application/json',
+                    authorization: `Bearer ${jwt}`
                 },
             })
-            //.then(handleOriginalResponse);
+            .then((res) => this.handleOriginalResponse(res))
         }
 
     }
@@ -115,12 +122,6 @@ class Api {
 
 
 const api = new Api({
-    //address: "https://api.kisboo.mesto.nomoredomains.monster",
-    address:"http://localhost:3000",
-    headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        //"Authorization" : `Bearer ${localStorage.getItem('jwt')}`
-    }
+    address: "https://api.kisboo.mesto.nomoredomains.monster",
 })
 export default api;

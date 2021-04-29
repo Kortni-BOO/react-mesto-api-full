@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
 const validator = require('validator');
+const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -57,4 +57,5 @@ userSchema.statics.findUserByCredentials = function (email, password) {
         });
     });
 };
+
 module.exports = mongoose.model('user', userSchema);

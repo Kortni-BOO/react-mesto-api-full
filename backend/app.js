@@ -1,18 +1,15 @@
+require('dotenv').config();
 const express = require('express');
-
+const cors = require('cors');
 const bodyParser = require('body-parser');
-const dotenv = require('dotenv');
-
-dotenv.config();
 const { errors } = require('celebrate');
 const mongoose = require('mongoose');
-const userRoutes = require('./routes/users');
-const cardsRouter = require('./routes/cards');
+const routes = require('./routes/index');
 const { loginUser, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const { validatePostUser, validateLogin } = require('./middlewares/validate');
 const NotFoundError = require('./utils/not-found');
-const { requestLogger, errorLogger } = require('./middlewares/logger'); 
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -24,6 +21,28 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useUnifiedTopology: true,
 });
 
+const whitelist = [
+  'https://kisboo.mesto.nomoredomains.monster',
+  'http://kisboo.mesto.nomoredomains.monster',
+  'https://www.kisboo.mesto.nomoredomains.monster',
+  'http://www.kisboo.mesto.nomoredomains.monster',
+  'http://localhost:3000',
+];
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (whitelist.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(null, false);
+    }
+  },
+  methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
+};
+
+app.use(cors(corsOptions));
+
 app.use(bodyParser.json());
 app.use(requestLogger);
 
@@ -33,15 +52,15 @@ app.get('/crash-test', () => {
   }, 0);
 });
 
-app.post('/signup', validatePostUser, createUser);
 app.post('/signin', validateLogin, loginUser);
+app.post('/signup', validatePostUser, createUser);
 app.use(auth);
-app.use('/', userRoutes);
-app.use('/', cardsRouter);
+app.use(routes);
 
 app.use('*', () => {
   throw new NotFoundError('Такой страницы не существует');
 });
+
 app.use(errorLogger);
 app.use(errors());
 

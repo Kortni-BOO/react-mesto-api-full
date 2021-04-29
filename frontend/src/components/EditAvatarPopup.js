@@ -10,6 +10,7 @@ function EditAvatarPopup(props) {
         props.onUpdateAvatar({
           avatar: avatarRef.current.value,
         });
+        avatarRef.current.value = '';
       }
 
     return (
@@ -28,7 +29,6 @@ function EditAvatarPopup(props) {
           className="popup__input popup__input_assigment_avatar-edit"
           placeholder="Ссылка на аватар"
           required
-          noValidate
           ref={avatarRef}
         />
         <span

@@ -52,13 +52,7 @@ const createUser = (req, res, next) => {
     .then((hash) => User.create({
       name, about, avatar, email, password: hash,
     }))
-    .then((data) => res.status(201).send({
-      _id: data._id,
-      name: data.name,
-      about: data.about,
-      avatar: data.avatar,
-      email: data.email,
-    }))
+    .then((data) => res.status(201).send({ data }))
     .catch((err) => {
       if (err.name === 'MongoError' || err.code === 11000) {
         throw new ConflictingRequestError('Такой email уже зарегестрирован');
@@ -67,7 +61,6 @@ const createUser = (req, res, next) => {
     })
     .catch(next);
 };
-
 const updateProfile = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(
@@ -76,6 +69,7 @@ const updateProfile = (req, res, next) => {
     {
       new: true,
       runValidators: true,
+      upsert: false,
     },
   )
     .then((user) => {
@@ -124,15 +118,12 @@ const loginUser = (req, res, next) => {
         { expiresIn: '7d' },
       );
       res
-        .cookie('jwt', token, {
-          httpOnly: true,
-          sameSite: true,
-        })
-        .send({ token });
+        .send({ token, user });
     })
     .catch(() => {
       throw new AuthError('Необходима авторизация');
     })
+
     .catch(next);
 };
 

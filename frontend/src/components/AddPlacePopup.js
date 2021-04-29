@@ -5,8 +5,6 @@ function AddPlacePopup(props) {
     const [name, setName] = React.useState('');
     const [link, setLink] = React.useState('');
 
-
-
     function handleChangeName(e) {
         setName(e.target.value);
     }
@@ -22,6 +20,7 @@ function AddPlacePopup(props) {
           name,
           link,
         });
+
         setName('');
         setLink('');
     }

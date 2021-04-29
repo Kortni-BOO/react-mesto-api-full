@@ -16,7 +16,7 @@ import * as auth from "../utils/auth.js";
 import ProtectedRoute from "./ProtectedRoute";
 import InfoTooltip from "./InfoTooltip";
 import HeaderPopup from "./HeaderPopupOpen";
-import { getToken } from '../utils/utils';
+import { getToken, setToken } from '../utils/utils';
 
 
 function App() {
@@ -26,7 +26,7 @@ function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = React.useState(
     false
   );
-  const [currentUser, setCurrentUser] = React.useState({name:'',about:''});
+  const [currentUser, setCurrentUser] = React.useState('');
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = React.useState(false);
   const [isImagePopupOpen, setIsImagePopupOpen] = React.useState(false);
   const [selectedCard, setSelectedCard] = React.useState({});
@@ -41,19 +41,20 @@ function App() {
 
   React.useEffect(() => {
     const jwt = getToken();
+    
     Promise.all([api.getUserInformation(jwt),api.getInitialCards(jwt)])
       .then(([user, card]) => {
         setCurrentUser(user);
         setCards(card);
-        console.log(loggedIn);
       })
       .catch((err) => console.log(err));
-  },[history]);
+
+  },[loggedIn, history]);
+
 
   React.useEffect(() => {
     tokenCheck();
-  }, []);
-
+  }, [history]);
 
   function registerAuth(state) {
     setIsInfoTooltip(true);
@@ -74,16 +75,17 @@ function App() {
         })
   }
   /*Проверка токена */
-  function tokenCheck() {
-    const jwt = localStorage.getItem('jwt');
+  const tokenCheck = () => {
+    const jwt = getToken();
     if(jwt) {
-      auth.getContent(jwt).then(res => {
-        if (res) {
-          setEmail(res.data.email);
-          //console.log(res.data.email)
-          setLoggedIn(true);
-          history.push('/');
-        }
+      
+      auth.getContent(jwt)
+        .then(res => {
+          if (res) {
+            setEmail(res.data.email);
+            setLoggedIn(true);
+            history.push('/');
+          }
       })
       .catch((err) => {
         if(err === 401) {
@@ -95,14 +97,12 @@ function App() {
 
     /* Вход */
   function handleLogin(email, password) {
-    return auth.authorize(email, password)
+    auth.authorize(email, password)
       .then((res) => {
-        //console.log(email);
-        //setEmail(email);
-        setLoggedIn(true)
         localStorage.setItem('jwt', res.token);
-        tokenCheck();
-        console.log(loggedIn);
+        setLoggedIn(true);
+        setIsAuth(true);
+        history.push('/');
       })
       .catch((err) => {
         if(err === 400) {
@@ -120,30 +120,33 @@ function App() {
   }
   //console.log(currentUser);
   function handleUpdateUser(user) {
-      api.editUserInformation(user)
-        .then((user) => {
-          //console.log(user)
-          setCurrentUser(user)
+    const jwt = getToken();
+      api.editUserInformation(user, jwt)
+        .then((data) => {
+          setCurrentUser(data)
         })
         .catch((err) => console.log(`Ошибка при изменении данных ${err}`))
         .finally(() => closeAllPopups());
   }
   function handleUpdateAvatar(avatar) {
-    api.editAvatarUser(avatar)
+    const jwt = getToken();
+    api.editAvatarUser(avatar, jwt)
       .then((avatar) => setCurrentUser(avatar))
       .catch((err) => console.log(`Ошибка при обновлении аватара${err}`))
       .finally(() => closeAllPopups());
   }
   function handleCardLike(card) {
-    const isLiked = card.likes.some(i => i._id === currentUser._id);
-    api.changeLikeCardStatus(card._id, !isLiked).then((newCard) => {
-      const newCards = cards.map((c) => c._id === card._id ? newCard : c);
+    const jwt = getToken();
+    const isLiked = card.likes.some(i => i === currentUser._id);
+    api.changeLikeCardStatus(card._id, !isLiked, jwt).then((newCard) => {
+      const newCards = cards.map((c) => (c._id === card._id ? newCard : c));
       setCards(newCards);
     })
     .catch((err) => console.log(`Ошибка при постановки лайка ${err}`))
   }
   function handleCardDelete(card) {
-    api.removeCard(card._id)
+    const jwt = getToken();
+    api.removeCard(card._id, jwt)
       .then(() => {
         const newCards = cards.filter((c) => c._id !== card._id);
         setCards(newCards);
@@ -151,8 +154,11 @@ function App() {
       .catch((err) => console.log(`Ошибка при снятии лайка${err}`))
   }
   function handleAddCard(card) {
-    api.addCard(card)
-      .then((card) => setCards([card, ...cards]))
+    const jwt = getToken();
+    api.addCard(card, jwt)
+      .then((card) => {
+        setCards([card.data, ...cards])
+      })
       .catch((err) => console.log(`Ошибка при добавлении карточки ${err}`))
       .finally(() => closeAllPopups());
   }
@@ -189,6 +195,7 @@ function App() {
       <CurrentUserContext.Provider value={currentUser}>
         <Header onEmail={isEmail} onSignOut={onSignOut} onHeaderOpen={handleHeaderPopupOpen}/>
         <Switch>
+          
           <ProtectedRoute
             value={currentUser}
             exact
@@ -203,6 +210,7 @@ function App() {
             onCardLike={handleCardLike}
             onDeleteClick={handleCardDelete}
           />
+         
           <Route path="/sign-up">
             <Register onRegister={handleRegister}/>
           </Route>
@@ -226,7 +234,11 @@ function App() {
           isOpen={isImagePopupOpen}
           onClose={closeAllPopups}
         />
-        <EditProfilePopup isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} onUpdateUser={handleUpdateUser}/>
+        <EditProfilePopup
+          isOpen={isEditProfilePopupOpen} 
+          onClose={closeAllPopups} 
+          onUpdateUser={handleUpdateUser}
+        />
         <AddPlacePopup
           isOpen={isAddPlacePopupOpen}
           onClose={closeAllPopups}
